@@ -10,8 +10,9 @@ var Board = (props) => (
 							var className = (rowIndex + sqIndex) % 2 === 0 
 								? 'even square' 
 								: 'odd square'
-							if (sq == 5) className += ' blue'
-							if (sq == 6) className += ' red'
+							var circleColor;
+							if (sq == 5) circleColor = ' blue'
+							if (sq == 6) circleColor = ' red'
 							return (<div className={className}
 								onClick={props.selectTile}
 								data-row={rowIndex}
@@ -19,7 +20,7 @@ var Board = (props) => (
 								{
 									((sq) ? (
 										<svg viewBox='-1 -1 2 2'>
-											<circle cx='0' cy='0' r='.8' />
+											<circle cx='0' cy='0' r='.8' fill={circleColor} />
 										</svg>
 									) : null)
 								}

@@ -10,7 +10,9 @@ class App extends React.Component {
     super(props);
 
     this.state = {
-      board: []
+      board: [],
+      isFirst: null,
+      select: false
     };
 
     this.selectTile = this.selectTile.bind(this);
@@ -20,6 +22,12 @@ class App extends React.Component {
     socket.emit('new player');
     socket.on('info', (conn) => {
       console.log(conn);
+    });
+    socket.on('is first', (isFirst) => {
+      console.log(isFirst ? 'you are first player' : 'you are second player');
+      this.setState({
+        isFirst: isFirst
+      });
     });
     socket.on('state', (state) => {
       // console.log('receive state', state);
@@ -49,11 +57,18 @@ class App extends React.Component {
     var col = node.dataset.col;
     socket.emit('move', row, col);
     var classes = Array.prototype.slice.call(node.classList);
-    if (classes.includes('select')) {
-      node.classList.remove('select');
+    var selectColor = this.state.isFirst ? 'cyan' : 'pink';
+    if (classes.includes(selectColor)) {
+      this.setState({ select: false });
+      node.classList.remove(selectColor);
     } else {
-      node.classList.add('select');      
+      this.setState({ select: true });
+      node.classList.add(selectColor);      
     }
+  }
+
+  reset() {
+    socket.emit('reset');
   }
 
   render() {
@@ -63,6 +78,7 @@ class App extends React.Component {
           board={this.state.board}
           selectTile={this.selectTile}
         />
+        <button onClick={this.reset}>RESET</button>
   		</div>
   	);
   }

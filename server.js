@@ -29,6 +29,7 @@ io.on('connection', (socket) => {
     };
     players[socket.id].isFirst ? generatePlayerOneBoard() : generatePlayerTwoBoard();
     io.sockets.emit('info', ready(players));
+    socket.emit('is first', players[socket.id].isFirst);
     console.log('player connect');
   });
 
@@ -38,9 +39,16 @@ io.on('connection', (socket) => {
   });
 
   socket.on('disconnect', () => {
-    console.log('player disconnect');
     delete players[socket.id];
     io.sockets.emit('info', ready(players));
+    console.log('player disconnect');
+  });
+
+  socket.on('reset', () => {
+    generateBoard();
+    if (count >= 1) generatePlayerOneBoard();
+    if (count >= 2) generatePlayerTwoBoard();
+    console.log('reset');
   });
 });
 
