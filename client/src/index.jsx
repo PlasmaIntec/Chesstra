@@ -18,7 +18,7 @@ class App extends React.Component {
 
   componentDidMount() {
     socket.emit('new player');
-    socket.on('mess', (conn) => {
+    socket.on('info', (conn) => {
       console.log(conn);
     });
     socket.on('state', (state) => {
@@ -32,21 +32,27 @@ class App extends React.Component {
     for (let i = 0; i < board.length; i++) {
       board[i] = Array(8);
     }
-    board.forEach(row => row.fill(1));
+    board.forEach(row => row.fill(''));
     this.setState({
       board: board
     });
   }
 
   selectTile(e) {
-    var row = e.target.dataset.row;
-    var col = e.target.dataset.col;
+    var node = e.target;
+    if (node.nodeName !== 'DIV') {
+      while (node.nodeName !== 'DIV') {
+        node = node.parentNode;
+      }
+    }
+    var row = node.dataset.row;
+    var col = node.dataset.col;
     socket.emit('move', row, col);
-    var classes = Array.prototype.slice.call(e.target.classList);
-    if (classes.includes('red')) {
-      e.target.classList.remove('red');
+    var classes = Array.prototype.slice.call(node.classList);
+    if (classes.includes('select')) {
+      node.classList.remove('select');
     } else {
-      e.target.classList.add('red');      
+      node.classList.add('select');      
     }
   }
 

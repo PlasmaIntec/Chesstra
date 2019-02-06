@@ -10,13 +10,19 @@ var Board = (props) => (
 							var className = (rowIndex + sqIndex) % 2 === 0 
 								? 'even square' 
 								: 'odd square'
-							if (sq === 5) className += ' blue'
-							if (sq === 6) className += ' red'
+							if (sq == 5) className += ' blue'
+							if (sq == 6) className += ' red'
 							return (<div className={className}
 								onClick={props.selectTile}
 								data-row={rowIndex}
 								data-col={sqIndex}>
-								{sq}
+								{
+									((sq) ? (
+										<svg viewBox='-1 -1 2 2'>
+											<circle cx='0' cy='0' r='.8' />
+										</svg>
+									) : null)
+								}
 							</div>)
 						})
 					}
