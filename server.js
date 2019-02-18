@@ -33,9 +33,10 @@ io.on('connection', (socket) => {
     console.log('player connect');
   });
 
-  socket.on('move', (row, col) => {
-    board[row][col] = players[socket.id].isFirst ? 5 : 6;
-    console.log(row, col, socket.id);
+  socket.on('move', (rowFrom, colFrom, rowTo, colTo) => {
+    board[rowFrom][colFrom] = '';
+    board[rowTo][colTo] = players[socket.id].isFirst ? 'b' : 'r';
+    console.log(rowFrom, colFrom, rowTo, colTo, socket.id);
   });
 
   socket.on('disconnect', () => {
@@ -68,13 +69,13 @@ var generateBoard = () => {
 };
 
 var generatePlayerOneBoard = () => {
-  board[6].fill(5);
-  board[7].fill(5);
+  board[6].fill('bp');
+  board[7].fill('b');
 };
 
 var generatePlayerTwoBoard = () => {
-  board[0].fill(6);
-  board[1].fill(6);  
+  board[0].fill('r');
+  board[1].fill('rp');  
 };
 
 generateBoard();
