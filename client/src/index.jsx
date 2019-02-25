@@ -40,6 +40,10 @@ class App extends React.Component {
         board: state
       });
     });
+    socket.on('moves', (moves) => {
+      console.log(moves);
+      moves && moves.forEach(move => this.highlightTile(move));
+    });
     var board = Array(8);
     for (let i = 0; i < board.length; i++) {
       board[i] = Array(8);
@@ -48,6 +52,11 @@ class App extends React.Component {
     this.setState({
       board: board
     });
+  }
+
+  highlightTile(coord) {
+    var highlightColor = this.state.isFirst ? 'lightBlue' : 'lightRed';
+    this.state.tiles.find(tile => tile.dataset.row == coord[0] && tile.dataset.col == coord[1]).classList.add(highlightColor);
   }
 
   selectTile(e) {
@@ -63,7 +72,7 @@ class App extends React.Component {
       var rowFrom = this.state.selectedTile.dataset.row;
       var colFrom = this.state.selectedTile.dataset.col;
       var rowTo = node.dataset.row;
-      var colTo = node.dataset.col;
+      var colTo = node.dataset.col; 
       socket.emit('move', rowFrom, colFrom, rowTo, colTo);
       this.clearSelection();
       this.setState({ 
@@ -71,13 +80,16 @@ class App extends React.Component {
         selectedTile: null 
       });
     } else {
-      node.classList.add(selectColor);      
+      node.classList.add(selectColor);
       this.setState({ 
         select: true, 
         selectedTile: node 
-      });
+      }, () => {
+        var rowFrom = this.state.selectedTile.dataset.row;
+        var colFrom = this.state.selectedTile.dataset.col;
+        socket.emit('select', rowFrom, colFrom);            
+      });  
     }
-    console.log(this.state.selectedTile)
   }
 
   createTile(e) {
@@ -89,6 +101,8 @@ class App extends React.Component {
   clearSelection() {
     var selectColor = this.state.isFirst ? 'cyan' : 'pink';
     this.state.tiles.forEach(e => e.classList.remove(selectColor));
+    var highlightColor = this.state.isFirst ? 'lightBlue' : 'lightRed';
+    this.state.tiles.forEach(e => e.classList.remove(highlightColor));
   }
 
   render() {

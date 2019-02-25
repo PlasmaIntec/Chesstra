@@ -1,5 +1,7 @@
 import React from 'react';
 
+import { Pawn, King } from './PieceDesign.jsx';
+
 var Board = (props) => (
 	<div className='board'>
 		{
@@ -13,12 +15,8 @@ var Board = (props) => (
 							var circleColor, piece;
 							if (sq && sq[0] == 'b') circleColor = 'blue'
 							if (sq && sq[0] == 'r') circleColor = 'red'
-							if (sq && sq[1] == 'p') circleColor = 'white'
-							if (sq) {
-								piece = (<svg viewBox='-1 -1 2 2'>
-													<circle cx='0' cy='0' r='.8' fill={circleColor} />
-												</svg>)
-							}
+							if (sq && sq[1] == 'p') piece = King(circleColor)
+							if (sq && sq[1] === undefined) piece = Pawn(circleColor)
 							return (<div className={className}
 								onClick={props.selectTile}
 								ref={props.createTile}

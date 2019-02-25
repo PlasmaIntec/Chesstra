@@ -8,6 +8,8 @@ var server = require('http').Server(app);
 var io = require('socket.io')(server);
 var PORT = process.env.PORT || 3000;
 
+var gameHandler = require('./pieces.js');
+
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
@@ -20,7 +22,7 @@ server.listen(PORT, () => {
 //===========
 // GAME LOGIC
 //===========
-var players = {}, count = 0, enough, board;
+var players = {}, count = 0, enough, board, piece;
 
 io.on('connection', (socket) => {
   socket.on('new player', () => {
@@ -29,14 +31,24 @@ io.on('connection', (socket) => {
     };
     players[socket.id].isFirst ? generatePlayerOneBoard() : generatePlayerTwoBoard();
     io.sockets.emit('info', ready(players));
-    socket.emit('is first', players[socket.id].isFirst);
+    io.sockets.emit('state', board);
+    socket.emit('is first', players[socket.id].isFirst);    
     console.log('player connect');
   });
 
+  socket.on('select', (rowFrom, colFrom) => {   
+    piece = board[rowFrom][colFrom]; 
+    socket.emit('moves', gameHandler.route(piece, rowFrom, colFrom));
+  })
+
   socket.on('move', (rowFrom, colFrom, rowTo, colTo) => {
-    board[rowFrom][colFrom] = '';
-    board[rowTo][colTo] = players[socket.id].isFirst ? 'b' : 'r';
-    console.log(rowFrom, colFrom, rowTo, colTo, socket.id);
+    piece = board[rowFrom][colFrom];
+    if (piece && piece[1] === 'p' && colFrom === colTo && +rowTo === +rowFrom + (players[socket.id].isFirst ? -1 : 1)) {
+      board[rowFrom][colFrom] = '';
+      board[rowTo][colTo] = piece;      
+      io.sockets.emit('state', board);
+    }
+    console.log('MOVE:', piece, rowFrom, colFrom, rowTo, colTo, socket.id);
   });
 
   socket.on('disconnect', () => {
@@ -80,6 +92,6 @@ var generatePlayerTwoBoard = () => {
 
 generateBoard();
 
-setInterval(() => {
-  io.sockets.emit('state', board);
-}, 2000);
+// setInterval(() => {
+//   io.sockets.emit('state', board);
+// }, 2000);
